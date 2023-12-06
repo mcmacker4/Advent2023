@@ -1,14 +1,15 @@
+use core::fmt;
 use std::{iter::Peekable, str::Lines};
 
 #[derive(Debug)]
 pub struct Almanac {
     pub seeds: Vec<i64>,
-    pub seed_ranges: Vec<SeedRange>,
+    pub seed_ranges: Vec<IdRange>,
     pub maps: Vec<TypeMap>,
 }
 
-#[derive(Debug)]
-pub struct SeedRange {
+#[derive(Clone, Copy)]
+pub struct IdRange {
     pub start: i64,
     pub end: i64,
 }
@@ -20,6 +21,21 @@ pub struct Mapping {
     pub source: i64,
     pub dest: i64,
     pub length: i64,
+}
+
+impl fmt::Display for IdRange {
+
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}-{}", self.start, self.end)
+    }
+
+}
+
+impl fmt::Debug for IdRange {
+
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}-{}", self.start, self.end)
+    }
 }
 
 pub fn parse_input(input: &str) -> Almanac {
@@ -88,12 +104,12 @@ fn parse_mapping(line: &str) -> Mapping {
     Mapping { source, dest, length }
 }
 
-fn into_ranges(seeds: &Vec<i64>) -> Vec<SeedRange> {
+fn into_ranges(seeds: &Vec<i64>) -> Vec<IdRange> {
     let mut iter = seeds.iter();
     let mut ranges = vec![];
     while let Some(start) = iter.next() {
         if let Some(len) = iter.next() {
-            ranges.push(SeedRange { start: *start, end: *start + *len });
+            ranges.push(IdRange { start: *start, end: *start + *len });
         }
     }
     ranges
