@@ -8,8 +8,8 @@ fn main() {
         seeds: _,
     } = parse_input(input);
 
-    let mapped_ranges = maps.iter().fold(seed_ranges, |seed_ranges, type_map| {
-        map_ranges(type_map, &seed_ranges)
+    let mapped_ranges = maps.iter().fold(seed_ranges, |ranges, type_map| {
+        map_ranges(type_map, &ranges)
     });
 
     let result = mapped_ranges.iter().map(|r| r.start).min().expect("No answer found");
@@ -25,20 +25,15 @@ fn map_ranges(type_map: &TypeMap, ranges: &Vec<IdRange>) -> Vec<IdRange> {
 }
 
 fn map_single_range(type_map: &TypeMap, range: &IdRange) -> Vec<IdRange> {
-    //println!("Mapping range {}-{}", range.start, range.end);
     let mut mapped_ranges: Vec<(IdRange, i64)> = type_map
         .iter()
         .flat_map(|mapping| find_overlap(mapping, range))
         .collect();
 
-
-    //panic_on_overlaps(&mapped_ranges);
-
     mapped_ranges.sort_by_key(|(r, _)| r.start);
     let gaps = find_gaps(range, &mapped_ranges);
 
     let mut all_ranges: Vec<IdRange> = mapped_ranges.iter().map(apply_offset).collect();
-    //println!("\tRESULT: {:?}", all_ranges);
 
     all_ranges.extend(&gaps);
     all_ranges
@@ -47,13 +42,10 @@ fn map_single_range(type_map: &TypeMap, range: &IdRange) -> Vec<IdRange> {
 fn find_gaps(origin: &IdRange, ranges: &Vec<(IdRange, i64)>) -> Vec<IdRange> {
     
     if ranges.is_empty() {
-        //println!("\tAdded full gap");
         return vec![origin.clone()];
     }
 
     let mut gaps = vec![];
-
-    //println!("\tFinding gaps");
 
     if let Some((first, _)) = ranges.first() {
         if origin.start < first.start {
@@ -61,7 +53,6 @@ fn find_gaps(origin: &IdRange, ranges: &Vec<(IdRange, i64)>) -> Vec<IdRange> {
                 start: origin.start,
                 end: first.start,
             };
-            //println!("\tAdded left gap {}-{}", gap.start, gap.end);
             gaps.push(gap);
         }
     }
@@ -72,7 +63,6 @@ fn find_gaps(origin: &IdRange, ranges: &Vec<(IdRange, i64)>) -> Vec<IdRange> {
                 start: last.end,
                 end: origin.end,
             };
-            //println!("\tAdded right gap {}-{}", gap.start, gap.end);
             gaps.push(gap);
         }
     }
@@ -86,7 +76,6 @@ fn find_gaps(origin: &IdRange, ranges: &Vec<(IdRange, i64)>) -> Vec<IdRange> {
                     start: range_a.end,
                     end: range_a.start,
                 };
-                //println!("Added inner gap {}-{}", gap.start, gap.end);
                 gaps.push(gap);
             }
             range_a = range_b;
@@ -103,7 +92,6 @@ fn apply_offset((range, offset): &(IdRange, i64)) -> IdRange {
     }
 }
 
-/// Also maps the range into the new space
 fn find_overlap(mapping: &Mapping, range: &IdRange) -> Option<(IdRange, i64)> {
     let m_start = mapping.source;
     let m_end = mapping.source + mapping.length;
@@ -113,36 +101,13 @@ fn find_overlap(mapping: &Mapping, range: &IdRange) -> Option<(IdRange, i64)> {
 
     let diff = mapping.dest - mapping.source;
 
-    //println!("{}-{} + {}-{}", m_start, m_end, r_start, r_end);
-
     if r_end > m_start && r_start < m_end {
         let range = IdRange {
             start: m_start.max(r_start),
             end: m_end.min(r_end),
         };
-        //println!("\tOverlapped with {}-{} ===> {}-{} [{}]", m_start, m_end, range.start, range.end, diff);
-        //println!(" => [{}] {}-{}", diff, range.start, range.end);
         Some((range, diff))
     } else {
-        //println!("\tDoes not overlap with {}-{}", m_start, m_end);
         None
-    }
-}
-
-#[allow(dead_code)]
-fn panic_on_overlaps(ranges: &Vec<(IdRange, i64)>) {
-    for (i, a) in ranges.iter().enumerate() {
-        for (j, b) in ranges.iter().enumerate() {
-            if i != j {
-                panic_on_overlap(&a.0, &b.0);
-            }
-        }
-    }
-}
-
-fn panic_on_overlap(a: &IdRange, b: &IdRange) {
-    if a.end > b.start && a.start < b.end {
-        //println!("OVERLAP {}-{} + {}-{}", a.start, a.end, b.start, b.end);
-        panic!();
     }
 }
