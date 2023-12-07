@@ -1,5 +1,0 @@
-seeds: 79 14
-
-seed-to-soil map:
-50 98 2
-52 50 48
