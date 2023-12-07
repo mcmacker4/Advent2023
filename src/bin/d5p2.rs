@@ -67,10 +67,10 @@ fn find_gaps(origin: &IdRange, ranges: &Vec<(IdRange, i64)>) -> Vec<IdRange> {
         }
     }
 
-    let mut iter = ranges.iter();
-    if let Some((range_a, _)) = iter.next() {
-        let mut range_a = range_a;
-        while let Some((range_b, _)) = iter.next() {
+    let mut iter = ranges.iter().peekable();
+
+    while let Some((range_a, _)) = iter.next() {
+        if let Some((range_b, _)) = iter.peek() {
             if range_a.end < range_b.start {
                 let gap = IdRange {
                     start: range_a.end,
@@ -78,7 +78,6 @@ fn find_gaps(origin: &IdRange, ranges: &Vec<(IdRange, i64)>) -> Vec<IdRange> {
                 };
                 gaps.push(gap);
             }
-            range_a = range_b;
         }
     }
 
