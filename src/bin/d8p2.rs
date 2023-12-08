@@ -12,7 +12,7 @@ struct PuzzleInput {
 }
 
 impl PuzzleInput {
-    fn apply_instr(&self, instr: char, pos: &String) -> &String {
+    fn apply_instr<'a>(&'a self, instr: char, pos: &'a String) -> &'a String {
         let (left, right) = self.desert_map.get(pos).unwrap();
 
         match instr {
@@ -30,7 +30,11 @@ struct InstrIter<'a> {
 
 impl<'a> InstrIter<'a> {
     fn new(instr: &'a Vec<char>) -> Self {
-        Self { instr, position: 0 }
+        Self::start_at(instr, 0)
+    }
+
+    fn start_at(instr: &'a Vec<char>, position: usize) -> Self {
+        Self { instr, position }
     }
 }
 
@@ -46,11 +50,12 @@ impl<'a> Iterator for InstrIter<'a> {
 }
 
 fn main() {
-    let input = include_str!("./inputs/d8-p2-example.txt");
+    let input = include_str!("./inputs/d8-input.txt");
     let puzzle = parse_input(input);
 
-    let instr_iter = InstrIter::new(&puzzle.instructions);
-    let mut positions: Vec<&String> = puzzle
+    let mut primes = Primes::new();
+
+    let positions: Vec<&String> = puzzle
         .desert_map
         .keys()
         .filter(|k| k.ends_with('A'))
@@ -58,27 +63,126 @@ fn main() {
 
     println!("Starting positions: {}", positions.len());
 
-    let mut count: u64 = 0;
+    let mut lcm_factors = HashMap::<usize, usize>::new();
 
-    for instr in instr_iter {
-        for i in 0..positions.len() {
-            let pos = positions.get(i).unwrap();
-            let new_pos = puzzle.apply_instr(instr, pos);
-            positions[i] = new_pos;
+    for start in positions {
+        let (loop_start, loop_length) = find_loop(&puzzle, start);
+        println!(
+            "Start '{}' has loop at offset {} of length {}",
+            start, loop_start, loop_length
+        );
+
+        let factors = factorize(loop_length, &mut primes);
+        for (factor, c) in &factors {
+            let count = *lcm_factors.get(factor).unwrap_or(&0);
+            lcm_factors.insert(*factor, count.max(*c));
         }
 
-        count += 1;
+        println!("Prime factors of {}: {:?}", loop_length, factors);
+    }
 
-        if positions.iter().all(|pos| pos.ends_with('Z')) {
-            break;
-        }
+    let lcm = lcm_factors
+        .iter()
+        .flat_map(|(factor, count)| std::iter::repeat(*factor).take(*count))
+        .fold(1usize, |acc, f| acc * f);
 
-        if count % 100000 == 0 {
-            println!("Count: {}", count);
+    println!("LCM: {}", lcm);
+}
+
+type Primes = Vec<usize>;
+
+struct PrimeIter<'a> {
+    primes: &'a mut Primes,
+    candidate: usize,
+}
+
+impl<'a> PrimeIter<'a> {
+    fn new(primes: &'a mut Primes) -> Self {
+        Self {
+            primes,
+            candidate: 2,
         }
     }
 
-    println!("Answer: {}", count);
+    fn next(&mut self) -> usize {
+        if let Some(prime) = self.primes.iter().filter(|x| **x >= self.candidate).next() {
+            self.candidate = *prime + 1;
+            return *prime;
+        } else {
+            loop {
+                if self.primes.iter().all(|x| self.candidate % x != 0) {
+                    let prime = self.candidate;
+                    self.primes.push(prime);
+                    self.candidate += 1;
+                    return prime;
+                } else {
+                    self.candidate += 1;
+                }
+            }
+        }
+    }
+}
+
+fn factorize(num: usize, primes: &mut Primes) -> HashMap<usize, usize> {
+    let mut rem: usize = num;
+    let mut prime_iter = PrimeIter::new(primes);
+
+    let mut factors = HashMap::<usize, usize>::new();
+
+    while rem > 1 {
+        let prime = prime_iter.next();
+        while rem % prime == 0 {
+            let count = *factors.get(&prime).unwrap_or(&0);
+            factors.insert(prime, count + 1);
+            rem = rem / prime;
+        }
+    }
+
+    factors
+}
+
+#[derive(Hash, Eq, PartialEq)]
+struct Visit<'a> {
+    node: &'a String,
+    instr_id: usize,
+}
+
+fn find_loop(puzzle: &PuzzleInput, start: &String) -> (usize, usize) {
+    let mut visits = HashMap::<Visit, usize>::new();
+    let mut position = start;
+
+    let instr_iter = InstrIter::new(&puzzle.instructions);
+    for (i, instr) in instr_iter.enumerate() {
+        let visit = Visit {
+            node: position,
+            instr_id: i % puzzle.instructions.len(),
+        };
+
+        if let Some(start) = visits.get(&visit) {
+            let loop_length = i - start;
+            let inner_offset = next_z_distance(puzzle, position, i);
+            return (*start + inner_offset, loop_length);
+        } else {
+            visits.insert(visit, i);
+            position = puzzle.apply_instr(instr, position);
+        }
+    }
+
+    panic!("Should not get here");
+}
+
+fn next_z_distance<'a>(puzzle: &'a PuzzleInput, mut node: &'a String, instr_id: usize) -> usize {
+    let instr_iter = InstrIter::start_at(&puzzle.instructions, instr_id);
+    let mut distance = 0;
+    for instr in instr_iter {
+        if node.ends_with('Z') {
+            return distance;
+        } else {
+            node = puzzle.apply_instr(instr, node);
+            distance += 1;
+        }
+    }
+    panic!("What the hell!");
 }
 
 fn parse_input(input: &str) -> PuzzleInput {
