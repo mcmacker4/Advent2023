@@ -23,32 +23,6 @@ impl PuzzleInput {
     }
 }
 
-struct InstrIter<'a> {
-    instr: &'a Vec<char>,
-    position: usize,
-}
-
-impl<'a> InstrIter<'a> {
-    fn new(instr: &'a Vec<char>) -> Self {
-        Self::start_at(instr, 0)
-    }
-
-    fn start_at(instr: &'a Vec<char>, position: usize) -> Self {
-        Self { instr, position }
-    }
-}
-
-impl<'a> Iterator for InstrIter<'a> {
-    type Item = char;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let pos = self.position;
-        self.position = pos + 1;
-
-        Some(self.instr[pos % self.instr.len()])
-    }
-}
-
 fn main() {
     let input = include_str!("./inputs/d8-input.txt");
     let puzzle = parse_input(input);
@@ -151,7 +125,7 @@ fn find_loop(puzzle: &PuzzleInput, start: &String) -> (usize, usize) {
     let mut visits = HashMap::<Visit, usize>::new();
     let mut position = start;
 
-    let instr_iter = InstrIter::new(&puzzle.instructions);
+    let instr_iter = puzzle.instructions.iter().cycle();
     for (i, instr) in instr_iter.enumerate() {
         let visit = Visit {
             node: position,
@@ -164,7 +138,7 @@ fn find_loop(puzzle: &PuzzleInput, start: &String) -> (usize, usize) {
             return (*start + inner_offset, loop_length);
         } else {
             visits.insert(visit, i);
-            position = puzzle.apply_instr(instr, position);
+            position = puzzle.apply_instr(*instr, position);
         }
     }
 
@@ -172,13 +146,13 @@ fn find_loop(puzzle: &PuzzleInput, start: &String) -> (usize, usize) {
 }
 
 fn next_z_distance<'a>(puzzle: &'a PuzzleInput, mut node: &'a String, instr_id: usize) -> usize {
-    let instr_iter = InstrIter::start_at(&puzzle.instructions, instr_id);
+    let instr_iter = puzzle.instructions.iter().cycle().skip(instr_id);
     let mut distance = 0;
     for instr in instr_iter {
         if node.ends_with('Z') {
             return distance;
         } else {
-            node = puzzle.apply_instr(instr, node);
+            node = puzzle.apply_instr(*instr, node);
             distance += 1;
         }
     }
