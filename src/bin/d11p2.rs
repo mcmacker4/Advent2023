@@ -48,7 +48,7 @@ fn expand_space(Space { rows, cols, galaxies }: Space, chars: &Vec<char>) -> Spa
     let mut row_offset: u64 = 0;
     for row in 0..rows {
         if is_row_empty(row, cols, chars) {
-            row_offset += 1;
+            row_offset += 999999;
         }
         row_maps.insert(row, row + row_offset);
     }
@@ -56,7 +56,7 @@ fn expand_space(Space { rows, cols, galaxies }: Space, chars: &Vec<char>) -> Spa
     let mut col_offset: u64 = 0;
     for col in 0..cols {
         if is_col_empty(col, cols, chars) {
-            col_offset += 1;
+            col_offset += 999999;
         }
         col_maps.insert(col, col + col_offset);
     }
