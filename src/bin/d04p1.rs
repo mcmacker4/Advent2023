@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 
 fn main() {
-    let input = include_str!("./inputs/d4-input.txt");
+    let input = include_str!("./inputs/d04-input.txt");
     let result: usize = input.lines().map(game_score).sum();
 
     println!("Answer: {}", result);

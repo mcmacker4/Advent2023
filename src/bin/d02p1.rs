@@ -1,11 +1,11 @@
-use advent2023::d2::{parse_games, CubeColor, Subset, Game};
+use advent2023::d02::{parse_games, CubeColor, Subset, Game};
 
 const MAX_RED: u32 = 12;
 const MAX_GREEN: u32 = 13;
 const MAX_BLUE: u32 = 14;
 
 fn main() {
-    let input = include_str!("./inputs/d2-input.txt");
+    let input = include_str!("./inputs/d02-input.txt");
     let games = parse_games(input).unwrap();
 
     let result: u32 = games.iter()

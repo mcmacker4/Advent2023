@@ -2,7 +2,7 @@ use std::{str::Chars, iter::Peekable, collections::HashMap};
 
 
 fn main() {
-    let input = include_str!("./inputs/d3-input.txt");
+    let input = include_str!("./inputs/d03-input.txt");
 
     println!("{}", input);
 

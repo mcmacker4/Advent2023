@@ -1,3 +1,3 @@
-pub mod d2;
-pub mod d5;
-pub mod d6;
+pub mod d02;
+pub mod d05;
+pub mod d06;

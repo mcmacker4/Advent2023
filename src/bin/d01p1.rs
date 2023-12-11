@@ -1,5 +1,5 @@
 fn main() {
-    let input = include_str!("./inputs/d1-input.txt");
+    let input = include_str!("./inputs/d01-input.txt");
 
     let mut result = 0;
 

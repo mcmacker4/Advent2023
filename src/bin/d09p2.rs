@@ -33,11 +33,11 @@ fn generate_tree(hist: &str) -> (Vec<Vec<i64>>, usize) {
     (rows, first_lenght)
 }
 
-fn calculate_next_for_row(tree: &Vec<Vec<i64>>, row_num: usize) -> i64 {
+fn calculate_prev_for_row(tree: &Vec<Vec<i64>>, row_num: usize) -> i64 {
     if let Some(current_row) = tree.get(row_num) {
-        let a = current_row.last().unwrap();
-        let b = calculate_next_for_row(tree, row_num + 1);
-        a + b
+        let a = current_row.first().unwrap();
+        let b = calculate_prev_for_row(tree, row_num + 1);
+        a - b
     } else {
         0
     }
@@ -45,13 +45,13 @@ fn calculate_next_for_row(tree: &Vec<Vec<i64>>, row_num: usize) -> i64 {
 
 fn main() {
     
-    let input = include_str!("./inputs/d9-input.txt");
+    let input = include_str!("./inputs/d09-input.txt");
 
     let mut result = 0;
     
     for (_, line) in input.lines().enumerate() {
         let (tree, _) = generate_tree(line);
-        let next_value = calculate_next_for_row(&tree, 0);
+        let next_value = calculate_prev_for_row(&tree, 0);
         
         result += next_value;
     }

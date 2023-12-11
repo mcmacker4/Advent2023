@@ -138,7 +138,7 @@ fn main() {
         let loop_tiles = collect_known_loop(&tile_map, start, chosen_dir);
         let contained_tiles = calculate_area_within(&tile_map, &loop_tiles);
 
-        print_colored_map(&tile_map, &loop_tiles, &contained_tiles, start);
+        // print_colored_map(&tile_map, &loop_tiles, &contained_tiles, start);
 
         println!("Area within: {}", contained_tiles.len());
     } else {
@@ -245,6 +245,7 @@ fn is_loop_tile_crossed(tile_kind: &TileKind) -> bool {
     }
 }
 
+#[allow(dead_code)]
 fn print_colored_map(map: &TileMap, loop_tiles: &HashSet<(i64, i64)>, contained_tiles: &HashSet<(i64, i64)>, start: (i64, i64)) {
     for row in 0..map.size.0 {
         for col in 0..map.size.1 {

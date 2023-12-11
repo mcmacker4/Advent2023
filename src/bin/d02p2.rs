@@ -1,9 +1,9 @@
-use advent2023::d2::{parse_games, Game, Subset, CubeColor};
+use advent2023::d02::{parse_games, Game, Subset, CubeColor};
 
 
 
 fn main() {
-    let input = include_str!("./inputs/d2-input.txt");
+    let input = include_str!("./inputs/d02-input.txt");
     let games = parse_games(input).unwrap();
 
     let result: u32 = games.iter()

@@ -1,9 +1,9 @@
-use advent2023::d6::{Race, calculate_race};
+use advent2023::d06::{Race, calculate_race};
 
 
 
 fn main() {
-    let input = include_str!("./inputs/d6-input.txt");
+    let input = include_str!("./inputs/d06-input.txt");
     let race = parse_input(input);
 
     let (min, max) = calculate_race(&race);

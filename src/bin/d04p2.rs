@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 fn main() {
-    let input = include_str!("./inputs/d4-input.txt");
+    let input = include_str!("./inputs/d04-input.txt");
 
     let mut copies = HashMap::<usize, usize>::new();
 

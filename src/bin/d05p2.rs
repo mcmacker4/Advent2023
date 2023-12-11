@@ -1,7 +1,7 @@
-use advent2023::d5::{parse_input, Almanac, IdRange, Mapping, TypeMap};
+use advent2023::d05::{parse_input, Almanac, IdRange, Mapping, TypeMap};
 
 fn main() {
-    let input = include_str!("./inputs/d5-input.txt");
+    let input = include_str!("./inputs/d05-input.txt");
     let Almanac {
         seed_ranges,
         maps,

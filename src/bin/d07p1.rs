@@ -11,7 +11,7 @@ struct Hand {
 }
 
 fn main() {
-    let input = include_str!("./inputs/d7-input.txt");
+    let input = include_str!("./inputs/d07-input.txt");
 
     let mut hands: Vec<Hand> = input
         .lines()

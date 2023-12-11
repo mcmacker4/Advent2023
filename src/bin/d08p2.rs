@@ -24,7 +24,7 @@ impl PuzzleInput {
 }
 
 fn main() {
-    let input = include_str!("./inputs/d8-input.txt");
+    let input = include_str!("./inputs/d08-input.txt");
     let puzzle = parse_input(input);
 
     let mut primes = Primes::new();
